@@ -16,7 +16,7 @@ const dummyReport: import("./cobertura").CoverageReport = {
       total: 80,
       line: 80,
       branch: 0,
-      missing: [["24", "26"]],
+      missing: [{ start: 24, end: 26 }],
     },
     {
       name: "ClassBar",
@@ -25,9 +25,9 @@ const dummyReport: import("./cobertura").CoverageReport = {
       line: 80,
       branch: 0,
       missing: [
-        ["23", "24"],
-        ["39", "40"],
-        ["50", "50"],
+        { start: 23, end: 24 },
+        { start: 39, end: 40 },
+        { start: 50, end: 50 },
       ],
     },
     {

@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import { parseStringPromise } from "xml2js";
 import glob from "glob-promise";
-export type LineRange = [string, string];
+export interface LineRange { start: number; end: number }
 interface Rates { total: number; line: number; branch: number }
 export interface CoverageFile extends Rates {
   filename: string;
@@ -142,14 +142,14 @@ function missingLines(klass: XmlClass): LineRange[] | "" {
   const lines = getLines(klass).sort(
     (a, b) => parseInt(a.number) - parseInt(b.number),
   );
-  const statements = lines.map((line) => line.number);
+  const statements = lines.map((line) => Number(line.number));
   const misses = lines
     .filter((line) => parseInt(line.hits) < 1)
-    .map((line) => line.number);
+    .map((line) => Number(line.number));
   return partitionLines(statements, misses);
 }
 
-function partitionLines(statements: string[], lines: string[]): LineRange[] {
+function partitionLines(statements: number[], lines: number[]): LineRange[] {
   /*
    * Detect sequences, with gaps according to 'statements',
    * in 'lines' and compress them in to a range format.
@@ -158,12 +158,13 @@ function partitionLines(statements: string[], lines: string[]): LineRange[] {
    *
    * statements = [1,2,3,4,5,10,11,12,13,14,15,16]
    * lines =      [1,2,    5,10,11,   13,14,  ,16]
-   * Returns: [[1, 2], [5, 11], [13, 14], [16, 16]]
+   * Returns: [{ start: 1, end: 2 }, { start: 5, end: 11 },
+   *           { start: 13, end: 14 }, { start: 16, end: 16 }]
    */
   const ranges: LineRange[] = [];
-  let start: string | null = null;
+  let start: number | null = null;
   let linesCursor = 0;
-  let end = "";
+  let end = 0;
   for (const statement of statements) {
     if (linesCursor >= lines.length) break;
 
@@ -176,12 +177,12 @@ function partitionLines(statements: string[], lines: string[]): LineRange[] {
     } else if (start !== null) {
       // Consecutive elements are broken, an element from
       // 'statements' is missing from 'lines'
-      ranges.push([start, end]);
+      ranges.push({ start, end });
       start = null;
     }
   }
   // (Eventually) close range running last iteration
-  if (start !== null) ranges.push([start, end]);
+  if (start !== null) ranges.push({ start, end });
 
   return ranges;
 }

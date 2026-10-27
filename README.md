@@ -15,6 +15,10 @@ A monorepo of GitHub Actions managed with npm workspaces. Each action lives in a
     minimum_coverage: 75
 ```
 
+## Testing the local action
+
+The `Test` workflow checks out the repository, runs tests, and uploads the Cobertura report. For pull requests, the `Coverage report` workflow then checks out the repository, downloads that report, and runs `./coverage-action` to publish the coverage comment and check.
+
 ## Development
 
 Requires Node.js 24 or newer. TypeScript, Vitest, Oxlint, and Rolldown are shared at the root, with one `package-lock.json` for all workspaces.

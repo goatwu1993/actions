@@ -26,6 +26,29 @@ jobs:
           name: coverage
           path: coverage-action/coverage/cobertura-coverage.xml
 
+  coverage:
+    needs: test
+    # Fork and Dependabot PRs need the separate workflow_run reporter.
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: coverage
+          path: coverage
+      - name: Self-test coverage action
+        uses: ./coverage-action
+        with:
+          path: coverage/cobertura-coverage.xml
+          minimum_coverage: 75
+          fail_below_threshold: true
+
   validate:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,68 @@
+name: 'cobertura-report'
+description: Report cobertura coverage reports in Pull Requests
+inputs:
+  repo_token:
+    description: 'The GITHUB_TOKEN for this repo'
+    required: true
+    default: ${{ github.token }}
+  path:
+    description: 'Path to the cobertura file.'
+    required: true
+    default: 'coverage.xml'
+  skip_covered:
+    description: 'If files with 100% should be skipped from report.'
+    required: true
+    default: true
+  minimum_coverage:
+    description: 'Minimum allowed coverage percentage as an integer.'
+    required: true
+  fail_below_threshold:
+    description: 'Fail the action when the minimum coverage was not met.'
+    required: false
+    default: false
+  show_line:
+    description: 'Show line rate as specific column.'
+    required: true
+    default: false
+  show_branch:
+    description: 'Show branch rate as specific column.'
+    required: true
+    default: false
+  show_class_names:
+    description: 'Show class names instead of file names.'
+    required: true
+    default: false
+  show_missing:
+    description: 'Show line numbers of statements, per module, that was not executed.'
+    required: true
+    default: false
+  show_missing_max_length:
+    description: 'Crop missing line numbers strings that exceeds this length, provided as an integer.'
+    required: false
+    default: ''
+  link_missing_lines:
+    description: 'Link missing line numbers.'
+    required: false
+    default: false
+  link_missing_lines_source_dir:
+    description: 'Source directory used for link_missing_lines.'
+    required: false
+    default: ''
+  only_changed_files:
+    description: 'Only show coverage for changed files. (only if a PR is present)'
+    required: true
+    default: false
+  pull_request_number:
+    description: 'Pull request number associated with the report. This property should be used when workflow trigger is different than pull_request.'
+    required: false
+    default: ''
+  report_name:
+    description: 'Use a unique name for the report and comment.'
+    required: false
+    default: ''
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
+branding:
+  icon: 'percent'
+  color: 'green'

@@ -1,0 +1,32 @@
+{
+  "name": "local-actions",
+  "private": true,
+  "version": "1.0.0",
+  "description": "GitHub Actions monorepo",
+  "workspaces": [
+    "*-action"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "test:watch": "npm run test:watch --workspaces --if-present",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint --deny-warnings",
+    "format": "oxlint --fix",
+    "package": "npm run package --workspaces --if-present",
+    "package:watch": "npm run package:watch --workspaces --if-present"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/xml2js": "^0.4.14",
+    "@vitest/coverage-v8": "^5.0.5",
+    "oxlint": "^1.90.0",
+    "rolldown": "^1.2.15",
+    "typescript": "^7.0.2",
+    "undici": "^6.29.1",
+    "vitest": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

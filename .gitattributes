@@ -1,0 +1,2 @@
+# The generated bundle includes whitespace inside dependency string literals.
+*-action/dist/** linguist-generated=true -whitespace

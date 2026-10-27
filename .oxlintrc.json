@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "vitest"
+  ],
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/coverage/**"
+  ],
+  "rules": {
+    "vitest/expect-expect": [
+      "warn",
+      {
+        "assertFunctionNames": [
+          "expect",
+          "mockAgent.assertNoPendingInterceptors"
+        ]
+      }
+    ]
+  }
+}

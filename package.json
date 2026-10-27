@@ -12,8 +12,10 @@
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --deny-warnings",
     "format": "oxlint --fix",
-    "package": "npm run package --workspaces --if-present",
-    "package:watch": "npm run package:watch --workspaces --if-present"
+    "package": "npm run build",
+    "package:watch": "npm run build:watch",
+    "build": "npm run build --workspaces --if-present",
+    "build:watch": "npm run build:watch --workspaces --if-present"
   },
   "license": "MIT",
   "devDependencies": {
@@ -28,5 +30,8 @@
   },
   "engines": {
     "node": ">=24.0.0"
+  },
+  "allowScripts": {
+    "fsevents": false
   }
 }

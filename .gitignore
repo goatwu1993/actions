@@ -95,3 +95,6 @@ public
 
 # Node modules
 node_modules
+
+# Last successful Makefile dependency install
+/.npm-ci-lock

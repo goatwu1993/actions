@@ -119,10 +119,10 @@ jobs:
 
 Run commands from the repository root (Node.js 24 or newer):
 
-- Install dependencies: `npm ci`
+- Install dependencies: `npm ci --ignore-scripts`
 - Run this action's tests: `npm test --workspace coverage-action`
 - Check this action's types: `npm run typecheck --workspace coverage-action`
-- Build this action: `npm run package --workspace coverage-action`
+- Build this action: `npm run build --workspace coverage-action`
 - Lint all actions: `npm run lint`
 
 Commit `dist/index.js` after rebuilding. GitHub runs this bundle directly.

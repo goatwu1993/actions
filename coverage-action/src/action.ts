@@ -1,9 +1,10 @@
 import type { CoverageReport, LineRange } from "./cobertura";
-import type { WebhookPayload } from "@actions/github/lib/interfaces";
-import core from "@actions/core";
-import github from "@actions/github";
+import * as core from "@actions/core";
+import * as github from "@actions/github";
 import { escapeMarkdown } from "./utils";
 import { processCoverage } from "./cobertura";
+
+type WebhookPayload = typeof github.context.payload;
 interface ReportOptions {
   minimumCoverage?: number;
   showLine?: boolean;

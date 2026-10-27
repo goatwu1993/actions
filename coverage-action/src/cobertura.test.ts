@@ -212,22 +212,22 @@ test("processCoverage(test-missing-lines.xml, {skipCovered: true})", async () =>
   expect(files[1].total).toBe(80);
   expect(files[1].branch).toBe(0);
   expect(files[1].line).toBe(80);
-  expect(files[1].missing).toStrictEqual([["1", "3"]]);
+  expect(files[1].missing).toStrictEqual([{ start: 1, end: 3 }]);
 
   expect(files[2].filename).toBe("miss_at_end.py");
   expect(files[2].total).toBe(80);
   expect(files[2].branch).toBe(0);
   expect(files[2].line).toBe(80);
-  expect(files[2].missing).toStrictEqual([["9", "10"]]);
+  expect(files[2].missing).toStrictEqual([{ start: 9, end: 10 }]);
 
   expect(files[3].filename).toBe("single_line_gaps.py");
   expect(files[3].total).toBe(70);
   expect(files[3].branch).toBe(0);
   expect(files[3].line).toBe(70);
   expect(files[3].missing).toStrictEqual([
-    ["3", "3"],
-    ["5", "5"],
-    ["9", "9"],
+    { start: 3, end: 3 },
+    { start: 5, end: 5 },
+    { start: 9, end: 9 },
   ]);
 
   expect(files[4].filename).toBe("multi_line_gaps.py");
@@ -235,9 +235,9 @@ test("processCoverage(test-missing-lines.xml, {skipCovered: true})", async () =>
   expect(files[4].branch).toBe(0);
   expect(files[4].line).toBe(30);
   expect(files[4].missing).toStrictEqual([
-    ["4", "5"],
-    ["7", "9"],
-    ["15", "18"],
+    { start: 4, end: 5 },
+    { start: 7, end: 9 },
+    { start: 15, end: 18 },
   ]);
 
   expect(files[5].filename).toBe("unsorted_lines.py");
@@ -245,9 +245,9 @@ test("processCoverage(test-missing-lines.xml, {skipCovered: true})", async () =>
   expect(files[5].branch).toBe(0);
   expect(files[5].line).toBe(50);
   expect(files[5].missing).toStrictEqual([
-    ["3", "4"],
-    ["6", "6"],
-    ["8", "9"],
+    { start: 3, end: 4 },
+    { start: 6, end: 6 },
+    { start: 8, end: 9 },
   ]);
 
   expect(files[6].filename).toBe("no_lines.py");
@@ -260,7 +260,7 @@ test("processCoverage(test-missing-lines.xml, {skipCovered: true})", async () =>
   expect(files[7].total).toBe(0);
   expect(files[7].branch).toBe(0);
   expect(files[7].line).toBe(0);
-  expect(files[7].missing).toStrictEqual([["4", "4"]]);
+  expect(files[7].missing).toStrictEqual([{ start: 4, end: 4 }]);
 });
 
 test("trimFolder", () => {

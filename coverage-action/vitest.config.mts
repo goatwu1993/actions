@@ -4,10 +4,10 @@ export default defineConfig({
   test: {
     environment: "node",
     coverage: {
-      provider: "v8",
+      provider: "istanbul",
       include: ["src/**/*.ts"],
       exclude: ["src/**/*.test.ts"],
-      reporter: ["text", "cobertura"],
+      reporter: ["text", "cobertura", "html"],
     },
   },
 });

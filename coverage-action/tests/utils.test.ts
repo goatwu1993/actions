@@ -1,5 +1,5 @@
 import { test, expect } from "vitest";
-import { escapeMarkdown } from "./utils";
+import { escapeMarkdown } from "../src/utils";
 
 test("escapeMarkdown()", () => {
   const strings = [

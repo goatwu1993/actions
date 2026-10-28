@@ -120,7 +120,7 @@ jobs:
 Run commands from the repository root (Node.js 24 or newer):
 
 - Install dependencies: `npm ci --ignore-scripts`
-- Run this action's tests: `npm test --workspace coverage-action`
+- Run tests from the repository root: `npm test`
 - Check this action's types: `npm run typecheck --workspace coverage-action`
 - Build this action: `npm run build --workspace coverage-action`
 - Lint all actions: `npm run lint`

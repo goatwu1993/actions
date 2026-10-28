@@ -5,7 +5,7 @@ let mockAgent: MockAgent;
 let apiMock: ReturnType<MockAgent["get"]>;
 const owner = "someowner";
 const repo = "somerepo";
-const dummyReport: import("./cobertura").CoverageReport = {
+const dummyReport: import("../src/cobertura").CoverageReport = {
   total: 77.5,
   line: 77.5,
   branch: 0,
@@ -59,8 +59,8 @@ afterEach(async () => {
 });
 
 test("action", async () => {
-  const { action } = await import("./action");
-  process.env["INPUT_PATH"] = "./src/fixtures/test-branch.xml";
+  const { action } = await import("../src/action");
+  process.env["INPUT_PATH"] = "./coverage-action/src/fixtures/test-branch.xml";
   process.env["INPUT_SKIP_COVERED"] = "true";
   process.env["INPUT_SHOW_BRANCH"] = "false";
   process.env["INPUT_SHOW_LINE"] = "false";
@@ -96,8 +96,8 @@ test("action", async () => {
 });
 
 test("action triggered by workflow event", async () => {
-  const { action } = await import("./action");
-  process.env["INPUT_PATH"] = "./src/fixtures/test-branch.xml";
+  const { action } = await import("../src/action");
+  process.env["INPUT_PATH"] = "./coverage-action/src/fixtures/test-branch.xml";
   process.env["INPUT_SKIP_COVERED"] = "true";
   process.env["INPUT_SHOW_BRANCH"] = "false";
   process.env["INPUT_SHOW_LINE"] = "false";
@@ -139,8 +139,8 @@ test("action triggered by workflow event", async () => {
 });
 
 test("action triggered by push", async () => {
-  const { action } = await import("./action");
-  process.env["INPUT_PATH"] = "./src/fixtures/test-branch.xml";
+  const { action } = await import("../src/action");
+  process.env["INPUT_PATH"] = "./coverage-action/src/fixtures/test-branch.xml";
   process.env["INPUT_SKIP_COVERED"] = "true";
   process.env["INPUT_SHOW_BRANCH"] = "false";
   process.env["INPUT_SHOW_LINE"] = "false";
@@ -175,9 +175,9 @@ test("action triggered by push", async () => {
 });
 
 test("action passing pull request number directly", async () => {
-  const { action } = await import("./action");
+  const { action } = await import("../src/action");
   const prNumber = 123;
-  process.env["INPUT_PATH"] = "./src/fixtures/test-branch.xml";
+  process.env["INPUT_PATH"] = "./coverage-action/src/fixtures/test-branch.xml";
   process.env["INPUT_SKIP_COVERED"] = "true";
   process.env["INPUT_SHOW_BRANCH"] = "false";
   process.env["INPUT_SHOW_LINE"] = "false";
@@ -221,8 +221,8 @@ test("action passing pull request number directly", async () => {
 });
 
 test("action only changes", async () => {
-  const { action } = await import("./action");
-  process.env["INPUT_PATH"] = "./src/fixtures/test-branch.xml";
+  const { action } = await import("../src/action");
+  process.env["INPUT_PATH"] = "./coverage-action/src/fixtures/test-branch.xml";
   process.env["INPUT_SKIP_COVERED"] = "true";
   process.env["INPUT_SHOW_BRANCH"] = "false";
   process.env["INPUT_SHOW_LINE"] = "false";
@@ -266,8 +266,8 @@ test("action only changes", async () => {
 });
 
 test("action with report name", async () => {
-  const { action } = await import("./action");
-  process.env["INPUT_PATH"] = "./src/fixtures/test-branch.xml";
+  const { action } = await import("../src/action");
+  process.env["INPUT_PATH"] = "./coverage-action/src/fixtures/test-branch.xml";
   process.env["INPUT_SKIP_COVERED"] = "true";
   process.env["INPUT_SHOW_BRANCH"] = "false";
   process.env["INPUT_SHOW_LINE"] = "false";
@@ -311,8 +311,8 @@ test("action with report name", async () => {
 });
 
 test("action with crop missing lines", async () => {
-  const { action } = await import("./action");
-  process.env["INPUT_PATH"] = "./src/fixtures/test-branch.xml";
+  const { action } = await import("../src/action");
+  process.env["INPUT_PATH"] = "./coverage-action/src/fixtures/test-branch.xml";
   process.env["INPUT_SKIP_COVERED"] = "true";
   process.env["INPUT_SHOW_BRANCH"] = "false";
   process.env["INPUT_SHOW_LINE"] = "false";
@@ -349,9 +349,9 @@ test("action with crop missing lines", async () => {
 });
 
 test("action failing on coverage below threshold", async () => {
-  const { action } = await import("./action");
+  const { action } = await import("../src/action");
   const prNumber = 123;
-  process.env["INPUT_PATH"] = "./src/fixtures/test-branch.xml";
+  process.env["INPUT_PATH"] = "./coverage-action/src/fixtures/test-branch.xml";
   process.env["INPUT_SKIP_COVERED"] = "true";
   process.env["INPUT_SHOW_BRANCH"] = "false";
   process.env["INPUT_SHOW_LINE"] = "false";
@@ -401,9 +401,9 @@ test("action failing on coverage below threshold", async () => {
 });
 
 test("action not failing on coverage above threshold", async () => {
-  const { action } = await import("./action");
+  const { action } = await import("../src/action");
   const prNumber = 123;
-  process.env["INPUT_PATH"] = "./src/fixtures/test-branch.xml";
+  process.env["INPUT_PATH"] = "./coverage-action/src/fixtures/test-branch.xml";
   process.env["INPUT_SKIP_COVERED"] = "true";
   process.env["INPUT_SHOW_BRANCH"] = "false";
   process.env["INPUT_SHOW_LINE"] = "false";
@@ -449,7 +449,7 @@ test("action not failing on coverage above threshold", async () => {
 });
 
 test("markdownReport", async () => {
-  const { markdownReport } = await import("./action");
+  const { markdownReport } = await import("../src/action");
   const commit = "deadbeef";
   const reportName = "TestReport";
   const defaultReportName = "Coverage Report";
@@ -736,7 +736,7 @@ _Minimum allowed coverage is \`100%\`_
 });
 
 test("addComment", async () => {
-  const { addComment } = await import("./action");
+  const { addComment } = await import("../src/action");
   const prNumber = 5;
   apiMock
     .intercept({
@@ -757,7 +757,7 @@ test("addComment", async () => {
 });
 
 test("addComment with update", async () => {
-  const { addComment } = await import("./action");
+  const { addComment } = await import("../src/action");
   const prNumber = 5;
   const commentId = 123;
   const oldComment = `<strong>bar</strong>
@@ -792,7 +792,7 @@ _Minimum allowed coverage is \`100%\`_
 });
 
 test("addComment for specific report", async () => {
-  const { addComment } = await import("./action");
+  const { addComment } = await import("../src/action");
   const prNumber = 5;
   const commentId = 123;
   const report1Comment = `Report1
@@ -823,7 +823,7 @@ _Minimum allowed coverage is \`100%\`_
 });
 
 test("addComment with update for specific report", async () => {
-  const { addComment } = await import("./action");
+  const { addComment } = await import("../src/action");
   const prNumber = 5;
   const comment1Id = 123;
   const comment2Id = 456;
@@ -873,7 +873,7 @@ _Minimum allowed coverage is \`100%\`_
 });
 
 test("listChangedFiles", async () => {
-  const { listChangedFiles } = await import("./action");
+  const { listChangedFiles } = await import("../src/action");
   const prNumber = 5;
   apiMock
     .intercept({
@@ -888,7 +888,7 @@ test("listChangedFiles", async () => {
 });
 
 test("addCheck", async () => {
-  const { addCheck } = await import("./action");
+  const { addCheck } = await import("../src/action");
   apiMock
     .intercept({ method: "POST", path: `/repos/${owner}/${repo}/check-runs` })
     .reply(200);

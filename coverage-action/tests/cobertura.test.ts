@@ -3,17 +3,17 @@ import {
   processCoverage,
   trimFolder,
   longestCommonPrefix,
-} from "./cobertura";
+} from "../src/cobertura";
 
 test("multiple files", async () => {
-  const reports = await processCoverage("./src/fixtures/*-branch.xml");
+  const reports = await processCoverage("./coverage-action/src/fixtures/*-branch.xml");
   expect(reports.length).toBe(2);
   expect(reports[0].folder).toBe("test-branch.xml");
   expect(reports[1].folder).toBe("test-no-branch.xml");
 });
 
 test("processCoverage(test-branch.xml, {skipCovered: false})", async () => {
-  const reports = await processCoverage("./src/fixtures/test-branch.xml");
+  const reports = await processCoverage("./coverage-action/src/fixtures/test-branch.xml");
   expect(reports.length).toBe(1);
   expect(reports[0].total).toBe(82.5);
   const files = reports[0].files;
@@ -45,7 +45,7 @@ test("processCoverage(test-branch.xml, {skipCovered: false})", async () => {
 });
 
 test("processCoverage({skipCovered: true})", async () => {
-  const reports = await processCoverage("./src/fixtures/test-branch.xml", {
+  const reports = await processCoverage("./coverage-action/src/fixtures/test-branch.xml", {
     skipCovered: true,
   });
   expect(reports.length).toBe(1);
@@ -67,7 +67,7 @@ test("processCoverage({skipCovered: true})", async () => {
 });
 
 test("processCoverage(test-branch.xml, {skipCovered: true})", async () => {
-  const reports = await processCoverage("./src/fixtures/test-branch.xml", {
+  const reports = await processCoverage("./coverage-action/src/fixtures/test-branch.xml", {
     skipCovered: true,
   });
   expect(reports[0].total).toBe(82.5);
@@ -88,7 +88,7 @@ test("processCoverage(test-branch.xml, {skipCovered: true})", async () => {
 });
 
 test("processCoverage(test-no-branch.xml, {skipCovered: true})", async () => {
-  const reports = await processCoverage("./src/fixtures/test-no-branch.xml", {
+  const reports = await processCoverage("./coverage-action/src/fixtures/test-no-branch.xml", {
     skipCovered: true,
   });
   expect(reports[0].total).toBe(90);
@@ -109,7 +109,7 @@ test("processCoverage(test-no-branch.xml, {skipCovered: true})", async () => {
 });
 
 test("processCoverage(test-istanbul.xml, {skipCovered: false})", async () => {
-  const reports = await processCoverage("./src/fixtures/test-istanbul.xml", {
+  const reports = await processCoverage("./coverage-action/src/fixtures/test-istanbul.xml", {
     skipCovered: false,
   });
   expect(reports[0].total).toBe(100);
@@ -131,7 +131,7 @@ test("processCoverage(test-istanbul.xml, {skipCovered: false})", async () => {
 
 test("processCoverage(test-istanbul-single.xml, {skipCovered: false})", async () => {
   const reports = await processCoverage(
-    "./src/fixtures/test-istanbul-single.xml",
+    "./coverage-action/src/fixtures/test-istanbul-single.xml",
     {
       skipCovered: false,
     },
@@ -148,7 +148,7 @@ test("processCoverage(test-istanbul-single.xml, {skipCovered: false})", async ()
 });
 
 test("processCoverage(test-python.xml, {skipCovered: false})", async () => {
-  const reports = await processCoverage("./src/fixtures/test-python.xml", {
+  const reports = await processCoverage("./coverage-action/src/fixtures/test-python.xml", {
     skipCovered: false,
   });
   expect(reports[0].total).toBe(90);
@@ -163,7 +163,7 @@ test("processCoverage(test-python.xml, {skipCovered: false})", async () => {
 });
 
 test("processCoverage(glob-test-branch.xml, {skipCovered: false})", async () => {
-  const reports = await processCoverage("./src/**/test-branch.xml");
+  const reports = await processCoverage("./coverage-action/src/**/test-branch.xml");
   expect(reports.length).toBe(1);
   expect(reports[0].total).toBe(82.5);
   const files = reports[0].files;
@@ -195,7 +195,7 @@ test("processCoverage(glob-test-branch.xml, {skipCovered: false})", async () => 
 });
 
 test("processCoverage(test-missing-lines.xml, {skipCovered: true})", async () => {
-  const reports = await processCoverage("./src/**/test-missing-lines.xml");
+  const reports = await processCoverage("./coverage-action/src/**/test-missing-lines.xml");
   expect(reports.length).toBe(1);
   expect(reports[0].total).toBe(51.24999999999999);
   const files = reports[0].files;

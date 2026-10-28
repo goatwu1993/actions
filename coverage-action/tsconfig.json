@@ -3,6 +3,7 @@
   "include": [
     "index.ts",
     "src/**/*.ts",
+    "tests/**/*.ts",
     "*.config.mts"
   ]
 }

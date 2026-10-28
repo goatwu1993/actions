@@ -1,83 +1,62 @@
 import { promises as fs } from "node:fs";
 import { parseStringPromise } from "xml2js";
 import glob from "glob-promise";
-export interface LineRange { start: number; end: number }
-interface Rates { total: number; line: number; branch: number }
+import { coberturaDocumentSchema } from "./schemas";
+import type { XmlRates, XmlClass, XmlPackage, XmlPackages } from "./schemas";
+
+export interface LineRange {
+  start: number;
+  end: number;
+}
+interface Rates {
+  total: number;
+  line: number;
+  branch: number;
+}
 export interface CoverageFile extends Rates {
   filename: string;
   name: string;
-  missing: LineRange[] | "";
+  missing: LineRange[];
 }
-export interface CoveragePackage extends Rates { name: string }
+export interface CoveragePackage extends Rates {
+  name: string;
+}
 export interface CoverageReport extends Rates {
   files: CoverageFile[];
   packages?: CoveragePackage[];
   folder?: string;
 }
 export type CoverageManifest = CoverageReport[];
-interface CoverageOptions { skipCovered: boolean }
-interface XmlLine { number: string; hits: string }
-interface XmlClass {
-  "line-rate": string;
-  "branch-rate": string;
-  filename: string;
-  name: string;
-  lines?: { line?: XmlLine | XmlLine[] };
-}
-interface XmlPackage {
-  name?: string;
-  "line-rate"?: string;
-  "branch-rate"?: string;
-  classes?: { class?: XmlClass | XmlClass[] };
-  class?: XmlClass | XmlClass[];
-}
-interface XmlPackages extends XmlPackage { package?: XmlPackage | XmlPackage[] }
-interface XmlCoverage {
-  "line-rate": string;
-  "branch-rate": string;
-  packages: XmlPackages;
+interface CoverageOptions {
+  skipCovered?: boolean;
 }
 
-/**
- * generate the report for the given file
- *
- * @param path: string
- * @param options: object
- * @return {Promise<{total: number, line: number, files: T[], branch: number}>}
- */
 async function readCoverageFromFile(path: string, options: CoverageOptions): Promise<CoverageReport> {
   const xml = await fs.readFile(path, "utf-8");
-  const { coverage }: { coverage: XmlCoverage } = await parseStringPromise(xml, {
+  const { coverage } = coberturaDocumentSchema.parse(await parseStringPromise(xml, {
     explicitArray: false,
     mergeAttrs: true,
-  });
+  }));
   const { packages } = coverage;
   const classes = processPackages(packages);
-  const packageList = packages.package
-    ? Array.isArray(packages.package)
-      ? packages.package
-      : [packages.package]
-    : [];
-  const packageReports = packageList
-    .filter(
-      (packageObj): packageObj is XmlPackage & Required<Pick<XmlPackage, "name" | "line-rate" | "branch-rate">> =>
-        Boolean(packageObj.name && packageObj["line-rate"] && packageObj["branch-rate"]),
-    )
-    .map((packageObj) => ({
-      name: packageObj.name,
-      ...calculateRates(packageObj as Required<Pick<XmlPackage, "line-rate" | "branch-rate">>),
-    }));
+  const packageReports = packages.package.flatMap((packageObj) => {
+    const { name, "line-rate": lineRate, "branch-rate": branchRate } = packageObj;
+    if (!name || lineRate === undefined || branchRate === undefined) return [];
+    return [{
+      name,
+      ...calculateRates({ "line-rate": lineRate, "branch-rate": branchRate }),
+    }];
+  });
   const files = classes
-    .filter((klass): klass is XmlClass => Boolean(klass))
     .map((klass) => {
       return {
         ...calculateRates(klass),
-        filename: klass["filename"],
-        name: klass["name"],
+        filename: klass.filename,
+        name: klass.name,
         missing: missingLines(klass),
       };
     })
-    .filter((file) => options.skipCovered === false || file.total < 100);
+    .filter((file) => !options.skipCovered || file.total < 100);
   return {
     ...calculateRates(coverage),
     files,
@@ -96,14 +75,10 @@ function trimFolder(path: string, positionOfFirstDiff: number) {
   }
 }
 
-/**
- *
- * @param path: string
- * @param options: {}
- * @returns {Promise<{total: number, folder: string, line: number, files: T[], branch: number}[]>}
- */
-async function processCoverage(path: string, options: CoverageOptions = { skipCovered: false }) {
-
+async function processCoverage(
+  path: string,
+  options: CoverageOptions = {},
+): Promise<CoverageManifest> {
   const paths = glob.hasMagic(path) ? await glob(path) : [path];
   const positionOfFirstDiff = longestCommonPrefix(paths);
   return await Promise.all(
@@ -118,37 +93,19 @@ async function processCoverage(path: string, options: CoverageOptions = { skipCo
   );
 }
 
-function processPackages(packages: XmlPackages) {
-  if (packages.package instanceof Array) {
-    return packages.package.map((p) => processPackage(p)).flat();
-  } else if (packages.package) {
-    return processPackage(packages.package);
-  } else {
-    return processPackage(packages);
-  }
+function processPackages(packages: XmlPackages): XmlClass[] {
+  return packages.package.length > 0
+    ? packages.package.flatMap(processPackage)
+    : processPackage(packages);
 }
 
-function processPackage(packageObj: XmlPackage) {
-  if (packageObj.classes && packageObj.classes.class instanceof Array) {
-    return packageObj.classes.class;
-  } else if (packageObj.classes && packageObj.classes.class) {
-    return [packageObj.classes.class];
-  } else if (packageObj.class && packageObj.class instanceof Array) {
-    return packageObj.class;
-  } else {
-    return [packageObj.class];
-  }
+function processPackage(packageObj: XmlPackage): XmlClass[] {
+  return packageObj.classes?.class ?? packageObj.class;
 }
 
-/**
- * returns coverage rates
- *
- * @param element: object
- * @returns {{total: number, line: number, branch: number}}
- */
-function calculateRates(element: Pick<XmlClass, "line-rate" | "branch-rate">) {
-  const line = parseFloat(element["line-rate"]) * 100;
-  const branch = parseFloat(element["branch-rate"]) * 100;
+function calculateRates(element: XmlRates): Rates {
+  const line = element["line-rate"] * 100;
+  const branch = element["branch-rate"] * 100;
   const total = line && branch ? (line + branch) / 2 : line;
   return {
     total,
@@ -157,22 +114,15 @@ function calculateRates(element: Pick<XmlClass, "line-rate" | "branch-rate">) {
   };
 }
 
-function getLines(klass: XmlClass): XmlLine[] {
-  const lines = klass.lines?.line;
-  return lines ? (Array.isArray(lines) ? lines : [lines]) : [];
-}
-
-function missingLines(klass: XmlClass): LineRange[] | "" {
+function missingLines(klass: XmlClass): LineRange[] {
   // Bail if line-rate says fully covered
-  if (parseFloat(klass["line-rate"]) >= 1.0) return "";
+  if (klass["line-rate"] >= 1.0) return [];
 
-  const lines = getLines(klass).sort(
-    (a, b) => parseInt(a.number) - parseInt(b.number),
-  );
-  const statements = lines.map((line) => Number(line.number));
+  const lines = [...(klass.lines?.line ?? [])].sort((a, b) => a.number - b.number);
+  const statements = lines.map((line) => line.number);
   const misses = lines
-    .filter((line) => parseInt(line.hits) < 1)
-    .map((line) => Number(line.number));
+    .filter((line) => line.hits < 1)
+    .map((line) => line.number);
   return partitionLines(statements, misses);
 }
 
@@ -214,12 +164,7 @@ function partitionLines(statements: number[], lines: number[]): LineRange[] {
   return ranges;
 }
 
-/**
- *
- * @param paths: [string]
- * @returns number
- */
-function longestCommonPrefix(paths: string[] | null) {
+function longestCommonPrefix(paths: readonly string[] | null): number {
   let prefix = "";
   if (paths === null || paths.length === 0) return 0;
 

@@ -131,3 +131,10 @@ Run commands from the repository root (Node.js 24 or newer):
 - Lint all actions: `npm run lint`
 
 Commit `dist/index.js` after rebuilding. GitHub runs this bundle directly.
+
+Cobertura data and consumed webhook fields are validated with Zod before use.
+Coverage rates must be between 0 and 1; line numbers must be positive integers
+and hit counts must be nonnegative integers. Boolean action inputs accept
+`true` or `false`, and numeric inputs must be complete integers.
+`minimum_coverage` accepts 0–100; `pull_request_number` must be positive.
+Invalid values fail the action with a validation error.

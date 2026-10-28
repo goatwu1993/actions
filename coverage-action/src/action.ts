@@ -1,4 +1,4 @@
-import type { CoverageReport, LineRange } from "./cobertura";
+import type { CoverageManifest, CoverageReport, LineRange } from "./cobertura";
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { escapeMarkdown } from "./utils";
@@ -7,8 +7,10 @@ import { processCoverage } from "./cobertura";
 type WebhookPayload = typeof github.context.payload;
 interface ReportOptions {
   minimumCoverage?: number;
+  skipCovered?: boolean;
   showLine?: boolean;
   showBranch?: boolean;
+  showPackage?: boolean;
   showClassNames?: boolean;
   showMissing?: boolean;
   showMissingMaxLength?: number;
@@ -78,11 +80,16 @@ async function action(payload: WebhookPayload = {}) {
     ? await listChangedFiles(pullRequestNumber!)
     : null;
 
-  const reports = await processCoverage(path, { skipCovered });
-  const comment = markdownReport(reports, commit, {
+  const manifestJson = JSON.stringify(await processCoverage(path));
+  const manifest = JSON.parse(manifestJson) as CoverageManifest;
+  const comment = markdownReport(manifest, commit, {
     minimumCoverage,
+    skipCovered,
     showLine,
     showBranch,
+    showPackage: parseBoolean(
+      core.getInput("show_package", { required: false }) || "true",
+    ),
     showClassNames,
     showMissing,
     showMissingMaxLength,
@@ -92,7 +99,7 @@ async function action(payload: WebhookPayload = {}) {
     reportName,
   });
 
-  const belowThreshold = reports.some(
+  const belowThreshold = manifest.some(
     (report) => Math.floor(report.total) < minimumCoverage,
   );
 
@@ -175,8 +182,10 @@ function formatMissingLines(
 function markdownReport(reports: CoverageReport[], commit: string, options: ReportOptions = {}) {
   const {
     minimumCoverage = 100,
+    skipCovered = true,
     showLine = false,
     showBranch = false,
+    showPackage = true,
     showClassNames = false,
     showMissing = false,
     showMissingMaxLength = -1,
@@ -193,7 +202,9 @@ function markdownReport(reports: CoverageReport[], commit: string, options: Repo
   for (const report of reports) {
     const folder = reports.length <= 1 ? "" : ` ${report.folder}`;
     for (const file of report.files.filter(
-      (file) => filteredFiles == null || filteredFiles.includes(file.filename),
+      (file) =>
+        (!skipCovered || file.total < 100) &&
+        (filteredFiles == null || filteredFiles.includes(file.filename)),
     )) {
       const fileTotal = Math.floor(file.total);
       const fileLines = Math.floor(file.line);
@@ -229,6 +240,19 @@ function markdownReport(reports: CoverageReport[], commit: string, options: Repo
     const total = Math.floor(report.total);
     const linesTotal = Math.floor(report.line);
     const branchTotal = Math.floor(report.branch);
+    const packages = showPackage
+      ? (report.packages ?? []).map((packageReport) => {
+          const packageTotal = Math.floor(packageReport.total);
+          return [
+            `**Package: ${escapeMarkdown(packageReport.name)}**`,
+            `\`${packageTotal}%\``,
+            showLine ? `\`${Math.floor(packageReport.line)}%\`` : undefined,
+            showBranch ? `\`${Math.floor(packageReport.branch)}%\`` : undefined,
+            status(packageTotal),
+            showMissing ? " " : undefined,
+          ];
+        })
+      : [];
     const table = [
       [
         "File",
@@ -254,6 +278,7 @@ function markdownReport(reports: CoverageReport[], commit: string, options: Repo
         status(total),
         showMissing ? " " : undefined,
       ],
+      ...packages,
       ...files,
     ]
       .map((row) => {

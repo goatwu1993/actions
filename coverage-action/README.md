@@ -92,6 +92,10 @@ Only show coverage for changed files.
 
 Use a unique name for the report and comment.
 
+### `report_title`
+
+Title displayed above the coverage report. Defaults to `Coverage Report`.
+
 ### `pull_request_number` **Optional**
 
 Pull request number associated with the report. This property should be used when workflow trigger is different than `pull_request`.

@@ -16,6 +16,10 @@ test("processCoverage(test-branch.xml, {skipCovered: false})", async () => {
   const reports = await processCoverage("./coverage-action/src/fixtures/test-branch.xml");
   expect(reports.length).toBe(1);
   expect(reports[0].total).toBe(82.5);
+  expect(reports[0].packages).toHaveLength(1);
+  expect(reports[0].packages?.[0].name).toBe("search");
+  expect(reports[0].packages?.[0].line).toBeCloseTo(84.2105, 4);
+  expect(reports[0].packages?.[0].branch).toBe(75);
   const files = reports[0].files;
   expect(files.length).toBe(4);
 

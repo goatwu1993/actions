@@ -8,7 +8,13 @@ export interface CoverageFile extends Rates {
   name: string;
   missing: LineRange[] | "";
 }
-export interface CoverageReport extends Rates { files: CoverageFile[]; folder?: string }
+export interface CoveragePackage extends Rates { name: string }
+export interface CoverageReport extends Rates {
+  files: CoverageFile[];
+  packages?: CoveragePackage[];
+  folder?: string;
+}
+export type CoverageManifest = CoverageReport[];
 interface CoverageOptions { skipCovered: boolean }
 interface XmlLine { number: string; hits: string }
 interface XmlClass {
@@ -18,7 +24,13 @@ interface XmlClass {
   name: string;
   lines?: { line?: XmlLine | XmlLine[] };
 }
-interface XmlPackage { classes?: { class?: XmlClass | XmlClass[] }; class?: XmlClass | XmlClass[] }
+interface XmlPackage {
+  name?: string;
+  "line-rate"?: string;
+  "branch-rate"?: string;
+  classes?: { class?: XmlClass | XmlClass[] };
+  class?: XmlClass | XmlClass[];
+}
 interface XmlPackages extends XmlPackage { package?: XmlPackage | XmlPackage[] }
 interface XmlCoverage {
   "line-rate": string;
@@ -41,6 +53,20 @@ async function readCoverageFromFile(path: string, options: CoverageOptions): Pro
   });
   const { packages } = coverage;
   const classes = processPackages(packages);
+  const packageList = packages.package
+    ? Array.isArray(packages.package)
+      ? packages.package
+      : [packages.package]
+    : [];
+  const packageReports = packageList
+    .filter(
+      (packageObj): packageObj is XmlPackage & Required<Pick<XmlPackage, "name" | "line-rate" | "branch-rate">> =>
+        Boolean(packageObj.name && packageObj["line-rate"] && packageObj["branch-rate"]),
+    )
+    .map((packageObj) => ({
+      name: packageObj.name,
+      ...calculateRates(packageObj as Required<Pick<XmlPackage, "line-rate" | "branch-rate">>),
+    }));
   const files = classes
     .filter((klass): klass is XmlClass => Boolean(klass))
     .map((klass) => {
@@ -55,6 +81,7 @@ async function readCoverageFromFile(path: string, options: CoverageOptions): Pro
   return {
     ...calculateRates(coverage),
     files,
+    packages: packageReports,
   };
 }
 

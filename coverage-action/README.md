@@ -54,6 +54,10 @@ Show line rate as specific column.
 
 Show branch rate as specific column.
 
+### `show_package`
+
+Show package coverage summary rows. Defaults to `true`.
+
 ### `show_class_names`
 
 Show class names instead of file names.

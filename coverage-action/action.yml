@@ -28,6 +28,10 @@ inputs:
     description: 'Show branch rate as specific column.'
     required: true
     default: false
+  show_package:
+    description: 'Show package coverage summary rows.'
+    required: true
+    default: true
   show_class_names:
     description: 'Show class names instead of file names.'
     required: true

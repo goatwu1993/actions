@@ -210,7 +210,7 @@ test("processCoverage(test-missing-lines.xml, {skipCovered: true})", async () =>
   expect(files[0].total).toBe(100);
   expect(files[0].branch).toBe(0);
   expect(files[0].line).toBe(100);
-  expect(files[0].missing).toBe("");
+  expect(files[0].missing).toStrictEqual([]);
 
   expect(files[1].filename).toBe("miss_at_start.py");
   expect(files[1].total).toBe(80);

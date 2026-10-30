@@ -61,6 +61,16 @@ Install shared development tools with `npm install --save-dev <tool>` at the roo
 
 Dependabot checks the root npm workspace and GitHub workflow dependencies weekly, grouping updates by ecosystem.
 
+## Releases
+
+The `release-please` job in `.github/workflows/main.yml` runs on pushes to `main` after tests and build validation pass. It uses [release-please-action](https://github.com/googleapis/release-please-action) to maintain a release pull request from Conventional Commits: `fix:` increments the patch version, `feat:` increments the minor version, and `feat!:` or a `BREAKING CHANGE:` footer increments the major version. Merging the release PR creates a GitHub release and a `vX.Y.Z` tag.
+
+All actions share one repository version, starting from the existing `1.0.0` baseline in `.release-please-manifest.json`. Release PRs update `CHANGELOG.md`, the root and action package versions, and `package-lock.json`. Consumers can use a published tag, for example `goatwu1993/actions/coverage-action@v1.1.0` after that version is released. Bundles must still be built and committed before merging changes.
+
+Enable **Allow GitHub Actions to create and approve pull requests** in **Settings → Actions → General**. The workflow uses `GITHUB_TOKEN` by default. To run the `Test` workflow automatically on release PRs, add a `RELEASE_PLEASE_TOKEN` repository secret containing a personal access token with repository contents, issues, and pull request read/write access. Events created with `GITHUB_TOKEN` do not trigger other workflows; see the action's [credential documentation](https://github.com/googleapis/release-please-action#github-credentials).
+
+When adding an action, add its `package.json` version and its workspace version in `package-lock.json` to the `extra-files` entries in `release-please-config.json` so release PRs keep them in sync.
+
 ## License
 
 [MIT](LICENSE).

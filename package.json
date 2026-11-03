@@ -23,9 +23,9 @@
     "@types/xml2js": "^0.4.14",
     "@vitest/coverage-istanbul": "^5.0.5",
     "oxlint": "^1.90.0",
-    "rolldown": "^1.2.15",
+    "rolldown": "^1.2.16",
     "typescript": "^7.0.2",
-    "undici": "^6.29.1",
+    "undici": "^8.12.3",
     "vitest": "^5.0.5"
   },
   "engines": {

@@ -1,5 +1,5 @@
 import { test, expect, beforeEach, afterEach, vi } from "vitest";
-import { MockAgent, setGlobalDispatcher } from "undici";
+import { MockAgent, Response, setGlobalDispatcher } from "undici";
 
 let mockAgent: MockAgent;
 let apiMock: ReturnType<MockAgent["get"]>;
@@ -165,9 +165,12 @@ test("action triggered by push", async () => {
     .intercept({
       method: "POST",
       path: `/repos/${owner}/${repo}/check-runs`,
-      body: JSON.stringify(body),
     })
-    .reply(200);
+    .reply(async (request) => {
+      // Fetch can dispatch a streaming body; consume it before comparing JSON.
+      expect(await new Response(request.body).json()).toEqual(body);
+      return { statusCode: 200 };
+    });
   await action({
     after: "deadbeef",
   });
